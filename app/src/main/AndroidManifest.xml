@@ -12,6 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CollaborativeTeamManagement">
         <activity
+            android:name=".activities.CreatBoardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.CollaborativeTeamManagement" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
