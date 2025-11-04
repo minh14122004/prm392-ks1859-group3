@@ -1,5 +1,6 @@
 package com.fptu.prm392.he180148.collaborativeteammanagement.activities
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,6 +12,7 @@ import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
@@ -21,6 +23,8 @@ import com.example.trelloclonemaster3.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
+import kotlin.collections.isNotEmpty
+import kotlin.collections.set
 
 @Suppress("DEPRECATION")
 class CreatBoardActivity : BaseActivity() {
@@ -35,19 +39,19 @@ class CreatBoardActivity : BaseActivity() {
 
         setupActionBar()
 
-        if(intent.hasExtra(Constants.NAME)){
-            mUserName = intent.getStringExtra(Constants.NAME)!!
+        if(Activity.getIntent.hasExtra(Constants.NAME)){
+            mUserName = Activity.getIntent.getStringExtra(Constants.NAME)!!
         }
 
         val boardImage = findViewById<ImageView>(R.id.iv_board_image)
         boardImage.setOnClickListener {
-            if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
                 Constants.showImagePicker(this)
             }else{
                 ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
-                    Constants.READ_STORAGE_PERMISSION_CODE
+                        this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                        Constants.READ_STORAGE_PERMISSION_CODE
                 )
             }
         }
@@ -64,7 +68,7 @@ class CreatBoardActivity : BaseActivity() {
     }
 
     private fun setupActionBar(){
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar_create_board_activity)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar_create_board_activity)
         setSupportActionBar(toolbar)
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
@@ -94,11 +98,11 @@ class CreatBoardActivity : BaseActivity() {
             try {
                 val boardImage = findViewById<ImageView>(R.id.iv_board_image)
                 Glide
-                    .with(this)
-                    .load(mStorageImageUri)
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_user_place_holder)
-                    .into(boardImage)
+                        .with(this)
+                        .load(mStorageImageUri)
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_user_place_holder)
+                        .into(boardImage)
             }catch(e: IOException){
                 e.printStackTrace()
                 Log.e("message","Failed")
@@ -112,17 +116,17 @@ class CreatBoardActivity : BaseActivity() {
         val etBoardName = findViewById<TextView>(R.id.et_board_name)
         val switchPublicProject = findViewById<Switch>(R.id.switch_public_project)
 
-        val assignedUsers: HashMap<String, String> = HashMap()
-        assignedUsers[getCurrentUserId()] = "Manager"
+        val assignedUsers: HashMap<String, String> = kotlin.collections.HashMap()
+        assignedUsers[getCurrentUserId()] set "Manager"
 
         val board = Board(
-            etBoardName.text.toString(),
-            mBoardImageURL,
-            mUserName,
-            assignedUsers,
-            "",
-            ArrayList(),
-            switchPublicProject.isChecked
+                etBoardName.text.toString(),
+                mBoardImageURL,
+                mUserName,
+                assignedUsers,
+                "",
+            kotlin.collections.ArrayList(),
+                switchPublicProject.isChecked
         )
 
         FirestoreClass().createBoard(this,board)
@@ -131,29 +135,29 @@ class CreatBoardActivity : BaseActivity() {
 
     fun boardCreatedSuccessfully(){
         hideCustomProgressDialog()
-        setResult(Activity.RESULT_OK)
-        finish()
+        Activity.setResult(Activity.RESULT_OK)
+        Activity.finish()
     }
 
     fun uploadBoardImage(){
         showCustomProgressBar()
 
         val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
-            "BOARD_NAME" + System.currentTimeMillis() + "." + Constants.getFileExtension(this,mStorageImageUri)
+                "BOARD_NAME" + System.currentTimeMillis() + "." + Constants.getFileExtension(this,mStorageImageUri)
         )
 
         sRef.putFile(mStorageImageUri!!).addOnSuccessListener {
-                taskSnapshot ->
+            taskSnapshot ->
             Toast.makeText(this, "Image Saved Successfully", Toast.LENGTH_SHORT).show()
             taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener {
-                    uri ->
+                uri ->
                 Log.e("Board Uri", uri.toString())
                 mBoardImageURL = uri.toString()
 
                 createBoard()
             }
         }.removeOnFailureListener {
-                exception ->
+            exception ->
             hideCustomProgressDialog()
             Toast.makeText(this,"Couldn't saveImage try again later ",Toast.LENGTH_SHORT).show()
         }
